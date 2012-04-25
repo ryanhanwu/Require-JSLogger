@@ -1,15 +1,5 @@
 define(function() {
   var Logger = {
-    DirObject : function() {
-      this._msg = "";
-      this.data = {};            
-      this.setMessage = function(msg) {
-        this._msg = msg;
-      }
-      this.setData = function(data) {
-        this.data = data;
-      }
-    },
     defaultlogLevel: ['error', 'warn', 'log', 'info', 'dir', 'debug'],
     infoLevel: ['log', 'info', 'dir'],
     devLevel: {
@@ -48,25 +38,33 @@ define(function() {
           break;
         }
     }
-      (function(ori){
-          var dirobj = new this.DirObject();
-          
-          ori.dir_o = ori.dir;
-
-          ori.dir = function() {
-          var e = new Error();
+      (function(ConsoleLogger){
+          ConsoleLogger.DirObject = function() {
+            this._msg = "";
+            this.data = {};            
+            this.setMessage = function(msg) {
+              this._msg = msg;
+            }
+            this.setData = function(data) {
+              this.data = data;
+            }
+          }          
+          ConsoleLogger.dir_o = ConsoleLogger.dir;
+          ConsoleLogger.dir = (function() {
+            var dirobj = new this.DirObject();
+            var e = new Error();
             if (arguments.length > 1 && e.stack != undefined) {
               dirobj.setMessage(arguments[0]);
-              dirobj.setData(arguments[1]);
+              dirobj.setData(arguments[1]);        
               var caller_line = e.stack.split("\n")[2];
               var index = caller_line.indexOf("at ");
               var clean = caller_line.slice(index+2, caller_line.length);
-               console.debug(_.initial(clean.split(":"),1).join(":"));
-               ori.dir_o(dirobj);
+               console.info(_.initial(clean.split(":"),1).join(":"));
+               ConsoleLogger.dir_o(dirobj);
              } else {
-               ori.dir_o(arguments);
+               ConsoleLogger.dir_o(arguments);
              }
-           }
+           })
       }).call(this, console);
     },    
     getLevel: function() {
